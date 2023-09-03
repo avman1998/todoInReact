@@ -2,6 +2,10 @@ import { useState } from "react";
 function Todo() {
   const [inputValue, setInputValue] = useState("");
   const [todos, setTodos] = useState([]);
+  const [isEdit, setIsEdit] = useState({
+    id: null,
+    status: false,
+  });
 
   //   Input Change
   function handleChange(e) {
@@ -33,6 +37,28 @@ function Todo() {
     setTodos(newArray);
   }
 
+  function EditTodo(index) {
+    console.log(todos[index]);
+    setInputValue(todos[index].todo);
+    setIsEdit({
+      id: todos[index].id,
+      status: true,
+    });
+  }
+
+  function updateTodo(inputValue) {
+    const value = todos.find((item) => item.id === isEdit.id);
+    const index = todos.indexOf(value);
+    const newArray = [...todos];
+    newArray[index].todo = inputValue;
+    setTodos(newArray);
+    setIsEdit({
+      id: null,
+      status: false,
+    });
+    setInputValue("");
+  }
+
   console.log(todos);
   //   console.log("InputValue", inputValue);
   return (
@@ -42,17 +68,26 @@ function Todo() {
         <input type="text" value={inputValue} onChange={handleChange} />
 
         {/* onclick=> add inputValue to array Todos */}
-        <button onClick={() => addTodo(inputValue)}>Add todo 🖊️</button>
+        {isEdit.status === false ? (
+          <button onClick={() => addTodo(inputValue)}>Add todo </button>
+        ) : (
+          <button onClick={() => updateTodo(inputValue)}>Update todo </button>
+        )}
       </div>
       <ul>
         {todos.map((item, index) => {
           return (
-            <li key={index}>
-              {item.todo} <span onClick={() => DeleteTodo(item.id)}>❌</span>
-            </li>
+            isEdit.id != item.id && (
+              <li key={index}>
+                {item.todo}
+                <span onClick={() => EditTodo(index)}>🖊️</span>
+                <span onClick={() => DeleteTodo(item.id)}>❌</span>
+              </li>
+            )
           );
         })}
       </ul>
+      <button onClick={() => setTodos([])}>Clear all</button>
     </>
   );
 }
